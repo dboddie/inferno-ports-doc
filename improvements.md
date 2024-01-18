@@ -21,4 +21,5 @@ Some enhancements would make using Inferno more comfortable on some platforms.
 * Interactive languages would supplement or augment the tiny shell.
   [Inferno Scheme](https://github.com/Plan9-Archive/inferno-scheme) could be
   interesting.
-* A draw device for embedded displays. Perhaps a variant of the existing one.
+* A draw device specifically for embedded displays. Perhaps a variant of the
+  existing draw device.
