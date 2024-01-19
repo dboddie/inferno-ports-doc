@@ -4,6 +4,13 @@ Ports of Inferno to various ARM Cortex-M4 and M7 boards share some common
 features due to their common instruction set and similarities in processor
 design.
 
+Ports include:
+
+* [Apollo3](https://github.com/dboddie/inferno-os/blob/apollo3/os/apollo3/README.md)
+* [SAMD51](https://github.com/dboddie/inferno-os/blob/samd51/os/samd51/README.md)
+* [STM32F405](https://github.com/dboddie/inferno-os/blob/stm32f405/os/stm32f405/README.md)
+* [Teensy 4.1/MicroMod](https://github.com/dboddie/inferno-os/blob/teensy41mm/os/teensy41mm/README.md)
+
 ## Toolchain
 
 The ports all use the Thumb-2 compiler toolchain: `tc` for the C compiler,
