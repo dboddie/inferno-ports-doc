@@ -5,10 +5,15 @@ various ports of Inferno.
 
 ## General issues
 
-* Re-examine use of clocks and timers in the ARM Cortex-M ports.
-* Implement proper UART drivers instead of relying on a hack to provide a keyboard.
+ARM Cortex-M ports:
+
+* Re-examine use of clocks and timers.
+* Implement proper UART drivers instead of relying on a hack to provide a
+  keyboard.
 * Share interrupt and preemption handling between ports.
 * Add (micro)SD card support from other ports, like the Ben NanoNote port.
+* Enable the Just In Time (JIT) compiler. This requires a certain amount of free
+  RAM.
 
 ## Enhancements
 
