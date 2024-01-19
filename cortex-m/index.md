@@ -76,7 +76,7 @@ As far as Inferno is concerned, booting begins in the assembly language
 file, `l.s`, in each of the ports
 ([Apollo3](https://github.com/dboddie/inferno-os/blob/apollo3/os/apollo3/l.s),
 [SAMD51](https://github.com/dboddie/inferno-os/blob/samd51/os/samd51/l.s),
-[STM32F405](https://github.com/dboddie/inferno-os/blob/stm32f405/os/std32f405/l.s),
+[STM32F405](https://github.com/dboddie/inferno-os/blob/stm32f405/os/stm32f405/l.s),
 [Teensy](https://github.com/dboddie/inferno-os/blob/teensy41mm/os/teensy41mm/l.s)).
 Unless a bootloader has set up the run-time environment, the processor will
 be running in thread mode, using the main stack, with potentially only
