@@ -9,6 +9,33 @@ This project aims to build on existing work to make Inferno run on
 microcontrollers by improving documentation, testing ports to various systems,
 and fixing any issues found.
 
+### Overview
+
+We propose the idea that a Unix-like operating system for microcontrollers
+would be useful for developers of embedded systems. Inferno is suitable for
+this use case due to its Unix heritage and its ability to run on systems with
+or without a memory management unit.
+
+Although ports of Inferno have been made for several microcontrollers, these
+ports are largely prototypes at the current time. This project aims to improve
+this situation by
+
+1. Consolidating existing work to port Inferno to several ARM Cortex
+microcontrollers, testing the ports more thoroughly, documenting how they work,
+fixing any issues found with them.
+2. Producing reliable, bootable images for each port.
+3. Determining Inferno's viability as a microcontroller platform by measuring,
+and possibly reducing, run-time memory usage.
+
+Expected outcomes are
+
+1. Working ports of Inferno to several microcontrollers that can be used as the
+basis for experimentation and further work.
+2. Documentation to allow users to understand how each port was made, and how
+to customise it for their own purposes.
+3. Measurements of typical memory usage for one or more ports, and a
+preliminary analysis of approaches to minimise it.
+
 ### Background and motivation
 
 The Inferno operating system has been around for a fairly long time and is
