@@ -52,10 +52,14 @@ interrupt occurs.
 
 The microcontrollers used by these ports are preinstalled with bootloaders that
 have already defined a vector table. The Inferno kernel needs its own vector
-table, and this is supplied with the kernel. Some microcontrollers and
-bootloaders expect the kernel to tell the microcontroller about the location
-of the vector table. This is done by writing to the `SCB_VTOR` register in
-the system control block.
+table, and this is supplied with the kernel in the `vectors.s` file
+([Apollo3](https://github.com/dboddie/inferno-os/blob/apollo3/os/apollo3/vectors.s),
+[SAMD51](https://github.com/dboddie/inferno-os/blob/samd51/os/samd51/vectors.s),
+[STM32F405](https://github.com/dboddie/inferno-os/blob/stm32f405/os/stm32f405/vectors.s),
+[Teensy](https://github.com/dboddie/inferno-os/blob/teensy41mm/os/teensy41mm/vectors.s)).
+Some microcontrollers and bootloaders expect the kernel to tell the
+microcontroller about the location of the vector table. This is done by
+writing to the `SCB_VTOR` register in the system control block.
 
 ### Static base
 
@@ -69,9 +73,14 @@ to make run-time calculations more efficient.
 ## Booting
 
 As far as Inferno is concerned, booting begins in the assembly language
-file, `l.s`, in each of the ports. Unless a bootloader has set up the
-run-time environment, the processor will be running in thread mode, using the
-main stack, with potentially only unprivileged access to resources.
+file, `l.s`, in each of the ports
+([Apollo3](https://github.com/dboddie/inferno-os/blob/apollo3/os/apollo3/l.s),
+[SAMD51](https://github.com/dboddie/inferno-os/blob/samd51/os/samd51/l.s),
+[STM32F405](https://github.com/dboddie/inferno-os/blob/stm32f405/os/std32f405/l.s),
+[Teensy](https://github.com/dboddie/inferno-os/blob/teensy41mm/os/teensy41mm/l.s)).
+Unless a bootloader has set up the run-time environment, the processor will
+be running in thread mode, using the main stack, with potentially only
+unprivileged access to resources.
 
 The first task is to set the static base address in the appropriate register,
 which is R12 for these ports.
