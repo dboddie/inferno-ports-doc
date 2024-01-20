@@ -230,3 +230,15 @@ interrupted code:
 ```
     POP_LR_PC(0x0001, 0, 1)     /* R0, PC */
 ```
+
+Ideally, execution should continue in the same way as it would have done if the
+exception had returned to the interrupted code directly.
+
+## Implementation notes
+
+The `PUSH`, `POP` and `POP_LR_PC` macros generate the T2 form of the `PUSH` and
+`POP` Thumb-2 instructions; see sections A7.7.98 and A7.7.99 of the ARMv7-M
+Architecture Reference Manual for information about these instructions.
+Unfortunately, the T2 form of these instructions is apparently unpredictable
+when fewer than 2 registers are handled. As a result, there are intentionally
+few places in the above code where only 1 register is handled.
