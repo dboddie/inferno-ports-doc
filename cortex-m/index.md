@@ -6,10 +6,10 @@ design.
 
 Ports include:
 
-* [Apollo3](https://github.com/dboddie/inferno-os/blob/apollo3/os/apollo3/README.md)
+* [Apollo3](https://github.com/dboddie/inferno-os/blob/cortexm/os/apollo3/README.md)
 * [SAMD51](https://github.com/dboddie/inferno-os/blob/samd51/os/samd51/README.md)
-* [STM32F405](https://github.com/dboddie/inferno-os/blob/stm32f405/os/stm32f405/README.md)
-* [Teensy 4.1/MicroMod](https://github.com/dboddie/inferno-os/blob/teensy41mm/os/teensy41mm/README.md)
+* [STM32F405](https://github.com/dboddie/inferno-os/blob/cortexm/os/stm32f405/README.md)
+* [Teensy 4.1/MicroMod](https://github.com/dboddie/inferno-os/blob/cortexm/os/teensy41mm/README.md)
 
 ## Toolchain
 
