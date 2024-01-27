@@ -242,3 +242,9 @@ Architecture Reference Manual for information about these instructions.
 Unfortunately, the T2 form of these instructions is apparently unpredictable
 when fewer than 2 registers are handled. As a result, there are intentionally
 few places in the above code where only 1 register is handled.
+
+In the [Teensy 4.1/MicroMod port](https://github.com/dboddie/inferno-os/blob/cortexm/os/teensy41mm/README.md),
+additional issues were encountered with the way that registers were handled
+on the stack. This affected some of the other exception handlers, but not the
+preemption routines. It is possible that a related issue may still cause
+problems with preemption in certain cases.
