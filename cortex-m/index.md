@@ -105,7 +105,7 @@ interrupt. However, since the Cortex-M ports use a different system of
 processor modes, the technique used to respond to the interrupt and
 perform a context switch is different.
 
-See [Preemption](preemption.md) for details.
+See [Preemption]( preemption.md ) for details.
 
 ## Floating point instructions
 
