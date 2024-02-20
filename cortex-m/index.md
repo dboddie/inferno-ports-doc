@@ -68,33 +68,14 @@ structures, such as the static and mutable data needed by the kernel.
 The [Inferno assembler manual](https://www.vitanuova.com/inferno/papers/asm.html)
 refers to this address as the beginning of the address space of the program.
 As with other Inferno ports, this address is loaded into a processor register
-to make run-time calculations more efficient.
+(R12) to make run-time calculations more efficient.
 
 ## Booting
 
 As far as Inferno is concerned, booting begins in the assembly language
-file, `l.s`, in each of the ports
-([Apollo3](https://github.com/dboddie/inferno-os/blob/apollo3/os/apollo3/l.s),
-[SAMD51](https://github.com/dboddie/inferno-os/blob/samd51/os/samd51/l.s),
-[STM32F405](https://github.com/dboddie/inferno-os/blob/stm32f405/os/stm32f405/l.s),
-[Teensy](https://github.com/dboddie/inferno-os/blob/teensy41mm/os/teensy41mm/l.s)).
-Unless a bootloader has set up the run-time environment, the processor will
-be running in thread mode, using the main stack, with potentially only
-unprivileged access to resources.
+file, `l.s`
 
-The first task is to set the static base address in the appropriate register,
-which is R12 for these ports.
-
-Then the stack pointer needs to be set.
-
-The vector table address may need to be set, depending on the microcontroller
-and bootloader.
-
-After this, data used by the kernel needs to be copied from the addresses
-immediately following the kernel text into the appropriate region of RAM.
-
-At this point, there is enough infrastructure in place to allow C functions to
-be called.
+See [Booting]( booting.md ) for details.
 
 Interrupts are disabled and the main function is called.
 
@@ -113,3 +94,7 @@ All the tested Cortex-M4 processors have single precision floating point
 support. This is not completely useful for Inferno because the system requires
 double precision support. However, there are single precision instructions
 that provide some of the operations that Inferno needs.
+
+The 32-bit ARM ports use an approach where floating point instructions are
+emulated, maintaining a set of virtual registers. This approach is also used
+except that the hardware registers
