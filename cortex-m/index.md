@@ -73,11 +73,9 @@ As with other Inferno ports, this address is loaded into a processor register
 ## Booting
 
 As far as Inferno is concerned, booting begins in the assembly language
-file, `l.s`
+file, `l.s`.
 
 See [Booting]( booting.md ) for details.
-
-Interrupts are disabled and the main function is called.
 
 ## Preemption
 
