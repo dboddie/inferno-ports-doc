@@ -14,6 +14,8 @@ ARM Cortex-M ports:
 * Add (micro)SD card support from other ports, like the Ben NanoNote port.
 * Enable the Just In Time (JIT) compiler. This requires a certain amount of free
   RAM.
+* Use only one memory pool instead of two or three. See [Memory saving techniques]( Improvements/memory-saving.md)
+  for a description of this technique.
 
 ## Enhancements
 

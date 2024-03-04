@@ -91,8 +91,11 @@ See [Preemption]( preemption.md ) for details.
 All the tested Cortex-M4 processors have single precision floating point
 support. This is not completely useful for Inferno because the system requires
 double precision support. However, there are single precision instructions
-that provide some of the operations that Inferno needs.
+providing some of the operations that Inferno needs.
 
 The 32-bit ARM ports use an approach where floating point instructions are
-emulated, maintaining a set of virtual registers. This approach is also used
-except that the hardware registers
+emulated when an undefined instruction exception occurs. This approach is also
+used for the Cortex-M ports except, instead of maintaining a set of virtual
+registers for each process, the hardware registers are used instead.
+
+See [Floating point instructions]( floating-point.md ) for details.
