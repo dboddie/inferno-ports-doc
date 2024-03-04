@@ -150,9 +150,6 @@ executed:
 Another way to handle the failure case would be to call `panic` and restart the
 system.
 
-12345678901234567890123456789012345678901234567890123456789012345678901234567890
-
-
 ## Emulating instructions
 
 The `fpithumb2` function is implemented in the
