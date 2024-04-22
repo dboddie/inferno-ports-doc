@@ -28,7 +28,7 @@ jobs:
           ./tools/makedocs.sh
           mv html/README.html html/index.html
       - name: Upload GitHub Pages artifacts
-        uses: actions/upload-pages-artifact@v0
+        uses: actions/upload-pages-artifact@v2
         with:
           path: html
 
@@ -42,5 +42,4 @@ jobs:
     steps:
       - name: Deploy GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
-
+        uses: actions/deploy-pages@v2
