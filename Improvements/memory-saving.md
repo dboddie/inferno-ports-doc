@@ -2,7 +2,7 @@
 
 It can be useful to apply techniques to save the amount of memory that Inferno
 uses, or to make usage more efficient in certain situations.
-This is particularly relevant in the case of the [Cortex-M]( cortex-m/index.md )
+This is particularly relevant in the case of the [Cortex-M]( ../cortex-m/index.md )
 ports, where the amount of available flash memory is usually much greater than
 the amount of RAM.
 
