@@ -9,3 +9,6 @@ This collection of documents aims to provide information about the ports of
 
 The general status of these ports and downloadable systems can be found 
 [on this page](https://dboddie.github.io/inferno-ports/index.html).
+
+The latest version of this documentation is published
+[on this site](https://dboddie.github.io/inferno-ports-doc/).
