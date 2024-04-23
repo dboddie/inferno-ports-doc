@@ -71,6 +71,7 @@ function field_positions() {
         table_cols[n] = i
 
         l = length($n)
+        table_colw[n] = l
         i += l
         s = substr(s, l + 1)
     }
@@ -85,6 +86,7 @@ BEGIN {
     list_re = "^\\* "
     table_re = "^="
     table_rule_re = "^-"
+    table_el = ""
     in_sec = ""
 }
 
@@ -107,14 +109,28 @@ $0 ~ table_re {
         field_positions()
 #        for (c in table_cols)
 #            print table_cols[c]
+        table_el = "th"
     } else {
-        end_sec("table")
+        end_sec()
+        for (i in table_cols)
+            delete table_cols[i]
     }
+    next
+}
+
+$0 ~ table_rule_re {
+    if (in_sec == "table")
+        next
 }
 
 $0 && $0 !~ whitespace_re {
     if (in_sec == "table") {
-        print "<tr>" html($0) "</tr>"
+        # Split the line at the original field positions.
+        s = ""
+        for (i in table_cols)
+            s = s "<" table_el ">" html(substr($0, table_cols[i], table_colw[i])) "</" table_el ">"
+        print "<tr>" s "</tr>"
+        table_el = "td"
         next
     } else if (in_sec == "")
         begin_sec("p")
