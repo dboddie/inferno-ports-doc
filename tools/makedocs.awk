@@ -1,14 +1,34 @@
 #!/usr/bin/awk -f
 
+function trim(s) {
+    gsub(" ", "", s)
+    return s
+}
+
+function links(s) {
+    if (match(s, link_re) != 0) {
+        t = substr(s, RSTART, RLENGTH + 1)
+        rest = substr(s, RSTART + RLENGTH, length(s))
+        s = substr(s, 1, RSTART - 1)
+        u = match(t, url_re)
+        s = s "<a href=\"" trim(substr(t, RSTART + 1, RLENGTH - 2)) "\">"
+        l = match(t, label_re)
+        s = s substr(t, RSTART + 1, RLENGTH - 2) "</a>" rest
+    }
+    return s
+}
+
 function html(s) {
     gsub("&", "&amp;", s)
     gsub("<", "&lt;", s)
     gsub(">", "&gt;", s)
+    s = links(s)
     return s
 }
 
 function begin_sec(s) {
     if (in_sec != s) {
+        end_sec()
         print "<" s ">"
         in_sec = s
     }
@@ -31,6 +51,9 @@ function fields(n) {
 BEGIN {
     heading_re = "^(#)+( *)(.*)"
     whitespace_re = "^( )+$"
+    label_re = "\\[[^]]+\\]"
+    url_re = "\\([^)]+\\)"
+    link_re = label_re url_re
     list_re = "^\\* "
     in_sec = ""
 }
@@ -38,7 +61,6 @@ BEGIN {
 $0 ~ heading_re {
     n = length($1)
     print "<h" n ">" html(fields(2)) "</h" n ">"
-    #print match($0, "[^# ]+(.*)")
     in_sec = ""
     next
 }
