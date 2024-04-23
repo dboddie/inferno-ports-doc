@@ -10,19 +10,32 @@ function links(s) {
         t = substr(s, RSTART, RLENGTH + 1)
         rest = substr(s, RSTART + RLENGTH, length(s))
         s = substr(s, 1, RSTART - 1)
-        u = match(t, url_re)
-        s = s "<a href=\"" trim(substr(t, RSTART + 1, RLENGTH - 2)) "\">"
+        match(t, url_re)
+        u = trim(substr(t, RSTART + 1, RLENGTH - 2))
+        if (u !~ "https://")
+            sub("\\.md", ".html", u)
+        s = s "<a href=\"" u "\">"
         l = match(t, label_re)
         s = s substr(t, RSTART + 1, RLENGTH - 2) "</a>" rest
     }
     return s
 }
 
+function markup(s) {
+    while (match(s, "`[^`]+`") != 0) {
+        t = substr(s, RSTART + 1, RLENGTH - 2)
+        rest = substr(s, RSTART + RLENGTH, length(s))
+        s = substr(s, 1, RSTART - 1) "<tt>" t "</tt>" rest
+    }
+    return s
+}
+
 function html(s) {
-    gsub("&", "&amp;", s)
-    gsub("<", "&lt;", s)
-    gsub(">", "&gt;", s)
+    gsub("&", "\\&amp;", s)
+    gsub("<", "\\&lt;", s)
+    gsub(">", "\\&gt;", s)
     s = links(s)
+    s = markup(s)
     return s
 }
 

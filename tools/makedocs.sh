@@ -24,25 +24,7 @@ for path in `find . -name "*.md"`; do
     cat tools/style.css >> html/$dn/$htmlname.html
     echo "</style></head><body>" >> html/$dn/$htmlname.html
     cat tools/page_header.html >> html/$dn/$htmlname.html
-    markdown_py -x fenced_code $path >> html/$dn/$htmlname.html
+    #markdown_py -x fenced_code $path >> html/$dn/$htmlname.html
+    awk -f tools/makedocs.awk $path >> html/$dn/$htmlname.html
     echo "</body></html>" >> html/$dn/$htmlname.html
-
-    html=`cat html/$dn/$htmlname.html`
-    echo "$html" | awk '
-    BEGIN {
-        extlink = "href=\"https:.*\""
-        link = "href=\".*\""
-    }
-    # Replace internal links to Markdown documents - one per line.
-    $0 ~ link && $0 !~ extlink {
-        match($0, link)
-        t = u = substr($0, RSTART, RLENGTH)
-        gsub(".md\"", ".html\"", u)
-        gsub(t, u)
-        print $0
-        next
-    }
-    $0 {
-        print $0
-    }' > html/$dn/$htmlname.html
 done
