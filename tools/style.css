@@ -49,10 +49,10 @@ h1,h2,h3 {
 }
 
 pre {
-  background-color: #f8f8e8;
+  background-color: #f0f0f0;
   font-size: 11pt;
   padding: 0.5em;
-  border: 1px solid #808080
+  border: 1px solid #c0c0c0
 }
 
 .highlight pre {
@@ -66,9 +66,10 @@ pre {
 }
 
 tt {
-  background-color: #f8f8e8;
-  padding-left: 0.25em;
-  padding-right: 0.25em
+/*  background-color: #f8f8e8; */
+  font-weight: 600; /* somewhere between normal (400) and bold (700) */
+/*  padding-left: 0.25em;
+  padding-right: 0.25em */
 }
 
 span.caption {
@@ -77,7 +78,23 @@ span.caption {
 }
 
 table {
-  background-color: #f0f0f0
+  background-color: #f0f0f0;
+  border: 1px solid #808080
+}
+
+th {
+  text-align: left;
+  font-family: serif;
+  font-size: 12pt;
+  padding: 2pt 12pt 2pt 4pt; /* top right bottom left */
+  border-bottom: 1px solid black
+}
+
+td {
+  text-align: left;
+  font-family: serif;
+  font-size: 12pt;
+  padding: 2pt 12pt 2pt 4pt; /* top right bottom left */
 }
 
 .highlight .c1 {

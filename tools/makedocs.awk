@@ -87,10 +87,11 @@ BEGIN {
     table_re = "^="
     table_rule_re = "^-"
     table_el = ""
+    pre_re = "^```$"
     in_sec = ""
 }
 
-$0 ~ heading_re {
+$0 ~ heading_re && in_sec != "pre" {
     n = length($1)
     print "<h" n ">" html(fields(2)) "</h" n ">"
     in_sec = ""
@@ -123,6 +124,14 @@ $0 ~ table_rule_re {
         next
 }
 
+$0 ~ pre_re {
+    if (in_sec != "pre")
+        begin_sec("pre")
+    else
+        end_sec()
+    next
+}
+
 $0 && $0 !~ whitespace_re {
     if (in_sec == "table") {
         # Split the line at the original field positions.
@@ -140,7 +149,7 @@ $0 && $0 !~ whitespace_re {
 
 # Handle empty lines.
 {
-    if (in_sec != "")
+    if (in_sec != "" && in_sec != "pre")
         end_sec()
     print html($0)
 }
