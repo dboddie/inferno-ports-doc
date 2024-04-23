@@ -61,6 +61,21 @@ function fields(n) {
     return s
 }
 
+function field_positions() {
+    s = $0
+    i = 1
+    for (n = 1; n <= NF; n++) {
+        j = index(s, $n)
+        s = substr(s, j)
+        i += j - 1
+        table_cols[n] = i
+
+        l = length($n)
+        i += l
+        s = substr(s, l + 1)
+    }
+}
+
 BEGIN {
     heading_re = "^(#)+( *)(.*)"
     whitespace_re = "^( )+$"
@@ -68,6 +83,8 @@ BEGIN {
     url_re = "\\([^)]+\\)"
     link_re = label_re url_re
     list_re = "^\\* "
+    table_re = "^="
+    table_rule_re = "^-"
     in_sec = ""
 }
 
@@ -84,8 +101,22 @@ $0 ~ list_re {
     next
 }
 
+$0 ~ table_re {
+    if (in_sec != "table") {
+        begin_sec("table")
+        field_positions()
+#        for (c in table_cols)
+#            print table_cols[c]
+    } else {
+        end_sec("table")
+    }
+}
+
 $0 && $0 !~ whitespace_re {
-    if (in_sec == "")
+    if (in_sec == "table") {
+        print "<tr>" html($0) "</tr>"
+        next
+    } else if (in_sec == "")
         begin_sec("p")
     print html($0)
     next
