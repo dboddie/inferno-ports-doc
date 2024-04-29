@@ -114,6 +114,7 @@ same argument to allow the floating point emulator to access and manipulate
 the stacked values:
 
 <<< sources/inferno-os/os/cortexm/trap.c
+highlight: case else for if return switch
 from: void usage_fault
 to: ^    }
 

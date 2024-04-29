@@ -88,13 +88,19 @@ function seek_line(arg) {
     return l
 }
 
+function highlight(line) {
+    for (i in highlight_words)
+        sub("\\y" highlight_words[i] "\\y", "<b>" highlight_words[i] "</b>", line)
+    return line
+}
+
 function quote_lines_from_file() {
 
     print "<pre>"
 
     # Read and process commands until a blank line or the end of file.
     while (getline > 0) {
-        if ($0 != "" && NF >= 2) {
+        if ($0 != "" && $0 !~ whitespace_re) {
             at = index($0, ":")
             if (at == 0)
                 break
@@ -110,12 +116,17 @@ function quote_lines_from_file() {
                 quote_line = seek_line(arg) - 1
             } else if ($1 == "until:") {
                 quote_to = seek_line(arg) - 1
+            } else if ($1 == "highlight:") {
+                for (i in highlight_words)
+                    delete highlight_words[i]
+                for (i = 2; i <= NF; i++)
+                    highlight_words[i] = $i
             }
         } else
             break
 
-        while (quote_line <= quote_to)
-            print html(quote_lines[quote_line++])
+        while (quote_line <= quote_to && quote_line > 0)
+            print highlight(html(quote_lines[quote_line++]))
     }
 
     print "</pre>"
@@ -123,7 +134,7 @@ function quote_lines_from_file() {
 
 BEGIN {
     heading_re = "^(#)+( *)(.*)"
-    whitespace_re = "^( )+$"
+    whitespace_re = "^( \t)+$"
     label_re = "\\[[^]]+\\]"
     url_re = "\\([^)]+\\)"
     link_re = label_re url_re
