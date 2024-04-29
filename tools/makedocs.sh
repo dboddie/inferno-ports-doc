@@ -33,5 +33,6 @@ for path in `find . -name "*.md"`; do
     cat tools/page_header.html >> html/$dn/$htmlname.html
     #markdown_py -x fenced_code $path >> html/$dn/$htmlname.html
     awk -f tools/makedocs.awk $path >> html/$dn/$htmlname.html
+    cat tools/page_footer.html >> html/$dn/$htmlname.html
     echo "</body></html>" >> html/$dn/$htmlname.html
 done
