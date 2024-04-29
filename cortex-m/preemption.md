@@ -99,111 +99,88 @@ switch if certain processor flags are set.
 ## Details
 
 We will refer to the
-[Apollo3](https://github.com/dboddie/inferno-os/blob/apollo3/os/apollo3/l.s)
+[Apollo3](https://github.com/dboddie/inferno-os/blob/cortexm/os/cortexm/systick.s)
 implementation to describe the mechanism in more detail.
 
 In the `_systick` exception handler, we check for existing exceptions and if
 certain processor flags are set, exiting from the handler immediately if so:
 
-```
-TEXT _systick(SB), THUMB, $-4
-
-    MOVW    28(SP), R0          /* Read xPSR */
-    MOVW    R0, R2
-    MOVW    $0x060fffff, R1
-    AND.S   R1, R0              /* Check the exception number and other bits. */
-    BNE     _systick_exit       /* Don't interrupt if these are set. */
-```
+<<< sources/inferno-os/os/cortexm/systick.s
+from: TEXT _systick
+until: /\*
+from: MOVW
+to: _systick_exit
 
 The processor flags for the interrupted code are transferred to R2 for later
 handling.
 
 To avoid any other issues with reentry, interrupts are masked:
 
-```
-    CPS(1, CPS_I)
-```
+<<<
+line: CPS\(1, CPS_I\)
 
 The processor flags in R2 are saved by copying them to a temporary register,
 R10, that isn't used in compiled code or any other assembly code. It is only
 used in this routine, which is another reason to prevent exception reentry:
 
-```
-    MOVW    R2, R10
-```
+<<<
+line: MOVW    R2, R10
 
 Since the idea is to return from the exception to the context switcher, the
 interrupted PC is copied to the slot on the stack where R12's value was
 stored, overwriting it:
 
-```
-    MOVW    24(SP), R0
-    ORR     $1, R0
-    MOVW    R0, 16(SP)
-```
+<<<
+from: MOVW    24\(SP\), R0
+to: R0, 16\(SP\)
 
 Since we will return from the exception to the context switching routine, we
 need to clear the condition flags in the value for the PSR stored on the stack:
 
-```
-    MOVW    $0x07ffffff, R0
-    AND     R2, R0
-    MOVW    R0, 28(SP)
-```
+<<<
+from: MOVW    \$0x07ffffff, R0
+to: R0, 28\(SP\)
 
 Then the address of the switcher (actually, an intermediate routine) is copied
 over the value of the interrupted PC on the stack before returning:
 
-```
-    MOVW    $_preswitch(SB), R0
-    ORR     $1, R0
-    MOVW    R0, 24(SP)
-
-_systick_exit:
-    RET
-```
+<<<
+from: MOVW    \$_preswitch\(SB\), R0
+to: RET
 
 At this point, the exception handler either returns to the interrupted code if
 the initial check failed, or it returns to the `_preswitch` routine. This begins
 by saving the interrupted PC in R12, as well as all the registers that could be
 in use:
 
-```
-TEXT _preswitch(SB), THUMB, $-4
-
-    PUSH(0x1001, 0)             /* R0, R12 */
-    PUSH(0x0ffe, 1)             /* R1-R11, LR */
-```
+<<<
+from: TEXT _preswitch
+to: PUSH\(0x0ffe, 1\)
 
 At this point, interrupts can be unmasked, allowing the code afterwards to be
 interrupted:
 
-```
-    CPS(0, CPS_I)
-```
+<<<
+line: CPS\(0, CPS_I\)
 
 Since floating point instructions may be in use, we save those as well:
 
-```
-    VMRS(0)                     /* FPSCR -> R0 */
-    PUSH(0x0001, 0)             /* R0 */
-    VPUSH(0, 8)                 /* Push D0-D7. */
-```
+<<<
+from: VMRS\(0\)
+to: VPUSH\(0, 8\)
 
 In order to call the context switcher we need to ensure that R12 contains the
 static base address, so we explicitly reset it:
 
-```
-    MOVW    $setR12(SB), R1
-    MOVW    R1, R12
-```
+<<<
+from: MOVW    \$setR12\(SB\), R1
+to: MOVW    R1, R12
 
 It is now possible to pass the stack pointer to the `switcher` C function:
 
-```
-    MOVW    SP, R0
-    BL      ,switcher(SB)
-```
+<<<
+from: MOVW    SP, R0
+to: BL      ,switcher\(SB\)
 
 When the switcher returns, it is possible that another task has been switched
 in, and the stack pointer will be different to the one we passed to it. In any
@@ -211,25 +188,22 @@ case, it is always the following code that is executed.
 
 First, the floating point registers are restored:
 
-```
-    VPOP(0, 8)                  /* Recover D0-D7. */
-    POP(0x0001, 0)              /* R0 */
-    VMSR(0)                     /* R0 -> FPSCR */
-```
+<<<
+from: VPOP\(0, 8\)
+to: VMSR\(0\)
 
 Then registers R1 to R11 and LR are restored. Since R10 contains the processor
 flags from the interrupted code, those are written back to the status register:
-```
-    POP_LR_PC(0x0ffe, 1, 0)     /* R1-R11, LR */
-    MSR(10, 0)                  /* R10 -> xPSR */
-```
+
+<<<
+from: POP_LR_PC\(0x0ffe, 1, 0\)
+to: MSR\(10, 0\)
 
 Finally, R0 and the interrupted PC are restored, returning control to the
 interrupted code:
 
-```
-    POP_LR_PC(0x0001, 0, 1)     /* R0, PC */
-```
+<<<
+line: POP_LR_PC\(0x0001, 0, 1\)
 
 Ideally, execution should continue in the same way as it would have done if the
 exception had returned to the interrupted code directly.
@@ -241,7 +215,9 @@ The `PUSH`, `POP` and `POP_LR_PC` macros generate the T2 form of the `PUSH` and
 Architecture Reference Manual for information about these instructions.
 Unfortunately, the T2 form of these instructions is apparently unpredictable
 when fewer than 2 registers are handled. As a result, there are intentionally
-few places in the above code where only 1 register is handled.
+few places in the above code where only 1 register is handled, and these have
+been updated to use the `PUSH1` and `POP1` macros which generate single
+register stacking instructions.
 
 In the [Teensy 4.1/MicroMod port](https://github.com/dboddie/inferno-os/blob/cortexm/os/teensy41mm/README.md),
 additional issues were encountered with the way that registers were handled

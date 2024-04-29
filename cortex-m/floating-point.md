@@ -85,24 +85,19 @@ order above it.
 The handler begins by recording the value that the stack pointer would have had
 before the exception occurred:
 
-```
-TEXT _usage_fault(SB), THUMB, $-4
-
-    MOVW    SP, R1      /* Record the interrupted stack pointer. */
-    ADD     $0x68, R1   /* Includes FP registers. */
-```
+<<< sources/inferno-os/os/apollo3/l.s
+line: TEXT _usage_fault
+before: MOVW
+to: ADD
 
 This is for diagnostic purposes, in case an exception occurs that is not
 handled by the floating point code. In order to preserve the state of the
 interrupted code, all other registers that are not already stacked are pushed
 onto the stack, including the link register holding the return address:
 
-```
-    PUSH(0x0ffa, 1)
-    MOVW    SP, R0
-    BL ,usage_fault(SB)
-    POP(0x0ffa, 1)
-```
+<<<
+from: PUSH\(0x0ffa, 1\)
+to: POP\(0x0ffa, 1\)
 
 The handler can then call the `usage_fault` function in
 [trap.c](https://github.com/dboddie/inferno-os/blob/cortexm/os/cortexm/trap.c)
@@ -118,36 +113,17 @@ instruction exception occurred, the `fpithumb2` function is called with the
 same argument to allow the floating point emulator to access and manipulate
 the stacked values:
 
-```
-void usage_fault(Ereg *er)
-{
-    /* Entered with sp pointing to an Ereg struct. */
-
-    if ((*(short *)UFSR_ADDR) & UFSR_UNDEFINSTR) {
-        if (fpithumb2(er)) {
-            *(short *)UFSR_ADDR |= UFSR_UNDEFINSTR;
-            return;
-        }
-    }
-```
+<<< sources/inferno-os/os/cortexm/trap.c
+from: void usage_fault
+to: ^    }
 
 If all went well, the instruction was handled and the exception is cleared in
 the UFSR. Otherwise, the exception is reported and an infinite loop is
 executed:
 
-```
-    wrstr("Usage fault at "); wrhex((int)er->pc); newline();
-    wrstr("UFSR="); wrhex(*(short *)UFSR_ADDR); newline();
-    wrstr("CFSR="); wrhex(*(int *)CFSR_ADDR); newline();
-    wrstr("SHCSR="); wrhex(*(int *)SHCSR_ADDR); newline();
-    wrstr("FPCCR="); wrhex(*(int *)FPCCR_ADDR); newline();
-    wrstr("up="); wrhex((int)up); newline();
-
-    dumperegs(er);
-
-    for (;;) {}
-}
-```
+<<<
+from: wrstr\("Usage fault at "\);
+to: ^}
 
 Another way to handle the failure case would be to call `panic` and restart the
 system.
@@ -166,25 +142,20 @@ The function begins by accessing the `Ereg` structure to read the contents of
 memory where the undefined instruction occurred, reading the instruction in
 two 16-bit parts:
 
-```
-int
-fpithumb2(Ereg *er)
-{
-    ushort w0 = *(ushort *)er->pc;
-    ushort w1 = *(ushort *)(er->pc + 2);
-```
+<<< sources/inferno-os/os/cortexm/fpithumb2.c
+before: fpithumb2\(
+to: \{
+from: ushort w0
+to: ushort w1
 
 A number of variables are declared to keep track of the various register
 numbers and immediate values. These include some `Internal` structures that
 are used to hold floating point values in a more appropriate format for the
 support functions to manipulate:
 
-```
-    ulong imm, ea;
-    ulong Fd, Fm, Fn;   // just register numbers, either R, S or D
-    ulong Rt, Rn;
-    Internal in1, in2, inr;
-```
+<<<
+from: ulong imm
+to: Internal in1
 
 The two halves of the instruction are checked against recognised bit patterns
 in a switch statement. Each group of instructions with a common bit patterns
@@ -192,18 +163,9 @@ are grouped together under the same case statement.
 
 The first group of instructions begins like this:
 
-```
-    switch (w0 & 0xffb0) {
-    case 0xeeb0:
-    {
-        if ((w1 & 0x40) == 0) {
-            // MOVD (A7.7.236)
-            Fd = (w1 >> 12) << 1;
-            imm = ((w0 & 0xf) << 4) | (w1 & 0xf);
-            // Expand the constant into the high register.
-            er->s[Fd + 1] = VFPExpandImm64(imm);
-            er->s[Fd] = 0;
-```
+<<<
+from: switch
+to: er\->s\[Fd\]
 
 The first branch in a series of if statements checks for a VMOV instruction
 that the compiler refers to internally as MOVD, putting an immediate constant
@@ -216,12 +178,9 @@ registers via locations on the stack.
 Having processed the instruction, the program counter is updated and success
 is reported to the usage fault handler:
 
-```
-        }
-        er->pc += 4;
-        return 1;
-    }
-```
+<<<
+from: ^        }$
+to: ^    }$
 
 When the interrupted code resumes, the updated values on the stack will be
 written back to the floating point registers automatically by the exception
@@ -230,23 +189,17 @@ return mechanism.
 Instructions like VADD and VSUB require more processing. These have different
 bit patterns and appear in a later case statement:
 
-```
-    // ADDD (A7.7.222), SUBD (A7.7.257)
-    case 0xee30:
-    {
-        Fd = (w1 >> 12) << 1;
-        Fm = (w1 & 0x0f) << 1;
-        Fn = (w0 & 0x0f) << 1;
-```
+<<<
+from: // ADDD
+to: Fn =
 
 The instruction contains information about the floating point registers that
 the instruction operates on. The register numbers are decoded and used to
 access the stack locations that correspond to the stacked registers:
 
-```
-        fpid2i(&in1, &er->s[Fn]);
-        fpid2i(&in2, &er->s[Fm]);
-```
+<<<
+from: fpid2i\(&in1
+to: fpid2i\(&in2
 
 Both values need to be converted the internal format for arithmetic to be
 performed, and the `fpid2i` function is used to do this for the `in1` and
@@ -255,24 +208,21 @@ performed, and the `fpid2i` function is used to do this for the `in1` and
 The type of operation is read from the instruction and the appropriate function
 is called to perform an addition or subtraction:
 
-```
-        if (w1 & 0x40) {
-            fsub(in2, in1, &inr);
-        } else {
-            fadd(in2, in1, &inr);
-        }
-```
+<<<
+line: if \(w1 & 0x40\)
+from: fsub
+to: else
+from: fadd
+to: \}$
 
 Once a result has been obtained in the `inr` structure, it is converted back
 to a suitable format and written directly to the location on the stack that
 corresponds to the destination floating point register:
 
-```
-        fpii2d(&er->s[Fd], &inr);
-        er->pc += 4;
-        return 1;
-    }
-```
+<<<
+line: fpii2d
+from: er\->pc
+to: \}$
 
 As before, the program counter is updated and success is reported to the
 usage fault handler.

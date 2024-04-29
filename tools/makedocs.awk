@@ -78,37 +78,47 @@ function field_positions() {
 }
 
 function seek_line(arg) {
-    if (arg ~ "^:[0-9]+$") {
-        arg = substr(arg, 2)
-        if (arg > quote_lines["last"])
-            return quote_lines["last"]
-        else if (arg <= 0)
-            return 1
+    l = quote_line
+    while (l <= quote_lines["last"]) {
+        if (quote_lines[l] ~ arg)
+            break
         else
-            return arg
-    } else {
-        l = quote_line
-        while (l <= quote_lines["last"]) {
-#            print l, ">", quote_lines[l]
-            if (quote_lines[l] ~ arg)
-                break
-            else
-                l++
-        }
-        return l
+            l++
     }
-    return 0
+    return l
 }
 
-function quote_lines_from_file(start, stop) {
-#    print "q", quote_line, start, stop
+function quote_lines_from_file() {
+
     print "<pre>"
-    quote_line = start
-    while (quote_line <= stop)
-        print html(quote_lines[quote_line++])
+
+    # Read and process commands until a blank line or the end of file.
+    while (getline > 0) {
+        if ($0 != "" && NF >= 2) {
+            at = index($0, ":")
+            if (at == 0)
+                break
+            arg = substr($0, at + 1)
+            sub("[ \t]+", "", arg)
+            if ($1 == "from:") {
+                quote_line = seek_line(arg)
+            } else if ($1 == "to:") {
+                quote_to = seek_line(arg)
+            } else if ($1 == "line:") {
+                quote_line = quote_to = seek_line(arg)
+            } else if ($1 == "before:") {
+                quote_line = seek_line(arg) - 1
+            } else if ($1 == "until:") {
+                quote_to = seek_line(arg) - 1
+            }
+        } else
+            break
+
+        while (quote_line <= quote_to)
+            print html(quote_lines[quote_line++])
+    }
 
     print "</pre>"
-    quote_line = stop
 }
 
 BEGIN {
@@ -183,17 +193,11 @@ $0 ~ quote_re {
 
         quote_file = qpath
         quote_line = 0
+        quote_to = 0
         quote_lines["last"] = i
     }
 
-    if (getline > 0)
-        quote_line = seek_line($0)
-    if (getline > 0)
-        quote_to = seek_line($0)
-    else
-        quote_to = quote_line
-
-    quote_lines_from_file(quote_line, quote_to)
+    quote_lines_from_file()
     next
 }
 

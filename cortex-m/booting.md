@@ -38,24 +38,17 @@ port as an example, we can see how the above steps are performed.
 The `l.s` file starts with some includes and a directive that ensures Thumb-2
 machine code will be generated instead of 32-bit ARM code:
 
-```
-#include "mem.h"
-#include "thumb2.h"
-#include "vectors.s"
-
-THUMB=4
-```
+<<< sources/inferno-os/os/apollo3/l.s
+from: include
+to: ^THUMB=4
 
 The `_start` routine is the entry point for the kernel, and it starts by
 setting the static base address. Note the left-to-right form of the
 assembler notation:
 
-```
-TEXT _start(SB), THUMB, $-4
-
-    MOVW    $setR12(SB), R1
-    MOVW    R1, R12	/* static base (SB) */
-```
+<<<
+from: TEXT _start
+to: static base
 
 The special constant, `setR12(SB)`, is defined by the compiler.
 
@@ -64,10 +57,9 @@ file to the register (R13) used to hold the stack pointer, which is referred to
 by the name `SP`. This transfer uses an intermediate register due to the
 limitations of the instruction set:
 
-```
-    MOVW    $STACK_TOP, R1
-    MOVW    R1, SP
-```
+<<<
+from: STACK_TOP
+to: SP
 
 In this port, the stack pointer in use is the Main Stack Pointer (MSP), and it
 is also useful to know that the processor is running in Thread Mode.
@@ -77,11 +69,9 @@ is the case for the Apollo3 microcontroller. The new address, defined by the
 `ROM_START` constant in the `mem.h` file, is written to the system register at
 the address, `SCB_VTOR`, defined in the `thumb2.h` file:
 
-```
-    MOVW    $SCB_VTOR, R1
-    MOVW    $ROM_START, R2
-    MOVW    R2, (R1)
-```
+<<<
+from: SCB_VTOR
+to: \(R1\)
 
 At this point, any exceptions should be routed via the table we have provided
 instead of the one provided by the bootloader.
@@ -92,23 +82,9 @@ defined by the `etext` constant, and writes to the memory starting at the
 address defined by the `bdata` constant. Copying continues until the pointer
 used for writes reaches the address defined by the `edata` constant:
 
-```
-    MOVW    $etext(SB), R1
-    MOVW    $bdata(SB), R2
-    MOVW    $edata(SB), R3
-
-_start_loop:
-    CMP     R3, R2              /* Note the reversal of the operands */
-    BGE     _end_start_loop
-
-    MOVW    (R1), R4
-    MOVW    R4, (R2)
-    ADD     $4, R1
-    ADD     $4, R2
-    B       _start_loop
-
-_end_start_loop:
-```
+<<<
+from: etext
+to: ^_end_start_loop
 
 The `etext`, `bdata` and `edata` constants are all defined by the compiler,
 based on its configuration and command line options.
@@ -116,11 +92,9 @@ based on its configuration and command line options.
 Before calling the kernel's `main` function, interrupts are disabled via the
 use of a helper routine defined in the `thumb2.s` file:
 
-```
-    BL  ,introff(SB)
-
-    B   ,main(SB)
-```
+<<<
+from: introff
+to: main
 
 The `main` function performs a series of higher-level tasks to bring up the
 kernel and user environment.
