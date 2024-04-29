@@ -77,6 +77,40 @@ function field_positions() {
     }
 }
 
+function seek_line(arg) {
+    if (arg ~ "^:[0-9]+$") {
+        arg = substr(arg, 2)
+        if (arg > quote_lines["last"])
+            return quote_lines["last"]
+        else if (arg <= 0)
+            return 1
+        else
+            return arg
+    } else {
+        l = quote_line
+        while (l <= quote_lines["last"]) {
+#            print l, ">", quote_lines[l]
+            if (quote_lines[l] ~ arg)
+                break
+            else
+                l++
+        }
+        return l
+    }
+    return 0
+}
+
+function quote_lines_from_file(start, stop) {
+#    print "q", quote_line, start, stop
+    print "<pre>"
+    quote_line = start
+    while (quote_line <= stop)
+        print html(quote_lines[quote_line++])
+
+    print "</pre>"
+    quote_line = stop
+}
+
 BEGIN {
     heading_re = "^(#)+( *)(.*)"
     whitespace_re = "^( )+$"
@@ -88,7 +122,11 @@ BEGIN {
     table_rule_re = "^-"
     table_el = ""
     pre_re = "^```$"
+    quote_re = "^<<<"
+
     in_sec = ""
+    quote_file = ""
+    quote_line = 0
 }
 
 $0 ~ heading_re && in_sec != "pre" {
@@ -108,8 +146,6 @@ $0 ~ table_re {
     if (in_sec != "table") {
         begin_sec("table")
         field_positions()
-#        for (c in table_cols)
-#            print table_cols[c]
         table_el = "th"
     } else {
         end_sec()
@@ -129,6 +165,35 @@ $0 ~ pre_re {
         begin_sec("pre")
     else
         end_sec()
+    next
+}
+
+$0 ~ quote_re {
+    qpath = $2
+
+#    print "path='" qpath "'"
+
+    if (qpath != "") {
+        for (i in quote_lines)
+            delete quote_lines[i]
+
+        i = 1
+        while (getline line <qpath > 0)
+            quote_lines[i++] = line
+
+        quote_file = qpath
+        quote_line = 0
+        quote_lines["last"] = i
+    }
+
+    if (getline > 0)
+        quote_line = seek_line($0)
+    if (getline > 0)
+        quote_to = seek_line($0)
+    else
+        quote_to = quote_line
+
+    quote_lines_from_file(quote_line, quote_to)
     next
 }
 
